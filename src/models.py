@@ -1,6 +1,6 @@
 import os
 import sys
-from sqlalchemy import Column, ForeignKey, Integer, String
+from sqlalchemy import Column, ForeignKey, Integer, String, Date, Text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy import create_engine
@@ -8,23 +8,40 @@ from eralchemy2 import render_er
 
 Base = declarative_base()
 
-class Person(Base):
-    __tablename__ = 'person'
-    # Here we define columns for the table person
-    # Notice that each column is also a normal Python instance attribute.
-    id = Column(Integer, primary_key=True)
-    name = Column(String(250), nullable=False)
+class User(Base):
+    __tablename__ = 'user'
+    id = Column(Integer,  primary_key=True, nullable=False)
+    username = Column(String(100), nullable=False)
+    firstname = Column(String(100), nullable=False) 
+    lastname = Column(String(100), nullable=False)
+    email = Column(String(100), primary_key=True, nullable=False)
+    password = Column(String(100), nullable=False)
+    followers = relationship('Follower')
 
-class Address(Base):
-    __tablename__ = 'address'
-    # Here we define columns for the table address.
-    # Notice that each column is also a normal Python instance attribute.
+class Post(Base):
+    __tablename__ = 'post'
+    id = Column (Integer,  primary_key=True, nullable=False)
+    post_date = Column (Date, nullable=False)
+    image = Column (String(250), nullable=False)
+    description = Column(Text())
+    user_id= Column(String, ForeignKey('user.id'))
+    user=relationship(User)
+
+class Comment(Base):
+    __tablename__ = 'comment'
+    id = Column (Integer,  primary_key=True, nullable=False)
+    comment_text = Column (Text(), nullable=False)
+    comment_date = Column (Date, nullable=False)
+    post_id = Column(String, ForeignKey('post.id'))
+    follower_id = Column(String, ForeignKey('follower.id'))
+    post= relationship('Post')
+    follower= relationship('Follower')
+
+class Follower(Base):
+    __tablename__ = 'follower'
     id = Column(Integer, primary_key=True)
-    street_name = Column(String(250))
-    street_number = Column(String(250))
-    post_code = Column(String(250), nullable=False)
-    person_id = Column(Integer, ForeignKey('person.id'))
-    person = relationship(Person)
+    user_id = Column(Integer, ForeignKey('user.id'))
+    user = relationship(User)
 
     def to_dict(self):
         return {}
